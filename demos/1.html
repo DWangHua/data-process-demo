@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Demo 1</title>
+  <script src="https://cdn.bootcss.com/lodash.js/4.17.5/lodash.min.js"></script>
+</head>
+<body>
+</body>
+<script>
+  const originalText = `Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE....`
+  const words = originalText.toLowerCase().match(/\w+/g);
+
+  // tuple
+  // hello -> [hello, 1] 
+  // 第一个元素时单词，第二个元素时单词的出现频率，刚开始都是1
+  // const reduceByKey = (tuples, callback) => {
+  //   // 返回以单词名为键的对象
+  //   // _.groupBy([6.1, 4.2, 6.3], Math.floor);
+  //   // => { '4': [4.2], '6': [6.1, 6.3] }
+  //   const grouped = _.groupBy(tuples, tuple => tuple[0]);
+
+  //   // return _.toPairs(_.mapValues(grouped), tuples => {
+  //   //   return _.chain(tuples).map(tuple => tuple[1]).reduce(callback).value();
+  //   // });
+  //   return _.toPairs(_.mapValues(grouped, tuples => _.chain(tuples).map(tuple => tuple[1]).reduce(callback).value()))
+  // };
+
+  // toPairs: 将一个对象转化为[[key, value], [key, value]] 的形式，在demo中，key是单词名称，value是出现的次数
+  // groupBy: 将tuples按tuple的第一个元素进行分组，同组的放在同一个数组，所对应的就是这个key，即tuple的第一个元素，最后都放在一个对象里
+  // mapValues: 按传递的函数对数据进行操作，返回的就是key的值
+  // 这里是将tuples提取出第二个元素，即单词出现个数，进行reduce
+  const reduceByKey = (tuples, callback) =>
+    _.toPairs(
+      _.mapValues(
+        _.groupBy(tuples, tuple => tuple[0]),
+        tuples => _.chain(tuples).map(tuple => tuple[1]).reduce(callback).value()));
+
+  // 将每个单词构造成一个tuple的形式 即 hello -> [hello, 1]
+  const tuples = words.map(word => [word, 1]);
+  const wordCountResult = reduceByKey(tuples, (pre, next) => pre + next);
+  const sorted = wordCountResult.sort((a, b) => b[1] - a[1]);
+  const top5 = _.take(sorted, 5).map(tuple => tuple[0]);
+  const minimal5 = _.takeRight(sorted, 5).map(tuple => tuple[0]);
+  console.log(top5);
+  console.log(minimal5);
+</script>
+</html>
